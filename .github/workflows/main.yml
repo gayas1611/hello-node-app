@@ -52,5 +52,5 @@ jobs:
         TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition hello-node-task --query 'taskDefinition.taskDefinitionArn' --output text)
         ECR_REPOSITORY="077183796284.dkr.ecr.ap-south-1.amazonaws.com/hello-node-app"
         IMAGE_TAG="${{ github.sha }}"
-        NEW_TASK_DEFINITION=$(aws ecs register-task-definition --family hello-node-task --container-definitions "[{\"name\":\"hello-node-container\",\"image\":\"$ECR_REPOSITORY:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000}],\"essential\":true}]" --query 'taskDefinition.taskDefinitionArn' --output text)
+        NEW_TASK_DEFINITION=$(aws ecs register-task-definition --family hello-node-task --container-definitions "[{\"name\":\"hello-node-container\",\"image\":\"$ECR_REPOSITORY:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000}],\"memory\":512,\"essential\":true}]" --query 'taskDefinition.taskDefinitionArn' --output text)
         aws ecs update-service --cluster hello-node-cluster --service hello-node-service --task-definition "$NEW_TASK_DEFINITION"
