@@ -49,7 +49,8 @@ jobs:
 
     - name: Deploy to ECS
       run: |
-        ECR_REPOSITORY="077183796284.dkr.ecr.ap-south-1.amazonaws.com/hello-node-app"
-        IMAGE_TAG="${{ github.sha }}"
-        NEW_TASK_DEFINITION=$(aws ecs register-task-definition --family hello-node-task --container-definitions "[{\"name\":\"hello-node-container\",\"image\":\"$ECR_REPOSITORY:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000}],\"memory\":512,\"cpu\":256,\"essential\":true}]" --requires-compatibilities FARGATE --network-mode awsvpc --query 'taskDefinition.taskDefinitionArn' --output text)
-        aws ecs update-service --cluster hello-node-cluster --service hello-node-service --task-definition "$NEW_TASK_DEFINITION"
+           Run ECR_REPOSITORY="077183796284.dkr.ecr.ap-south-1.amazonaws.com/hello-node-app"
+           ECR_REPOSITORY= "077183796284.dkr.ecr.ap-south-1.amazonaws.com/hello-node-app"
+           IMAGE_TAG="3ad872810be119d674aafa0abeb6fe68321e0a47"
+           NEW_TASK_DEFINITION=$(aws ecs register-task-definition --family hello-node-task --container-definitions "[{\"name\":\"hello-node-container\",\"image\":\"$ECR_REPOSITORY:$IMAGE_TAG\",\"portMappings\":[{\"containerPort\":3000,\"hostPort\":3000}],\"memory\":512,\"cpu\":256,\"essential\":true}]" --requires-compatibilities FARGATE --network-mode awsvpc --query 'taskDefinition.taskDefinitionArn' --output text)
+           aws ecs update-service --cluster hello-node-cluster --service hello-node-service --task-definition "$NEW_TASK_DEFINITION"
