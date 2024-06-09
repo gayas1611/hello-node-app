@@ -24,6 +24,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: List directory contents
+        run: ls -R Nodejsapp
+
       - name: Change to Terraform directory
         run: cd Nodejsapp/hello-node-app/terraform
 
