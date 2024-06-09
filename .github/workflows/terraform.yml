@@ -1,25 +1,30 @@
-name: Terraform
+name: Deploy to ECS
 
 on:
   push:
     branches:
       - master
 
+env:
+  AWS_REGION: ap-south-1
+
 jobs:
-  terraform:
-    name: Terraform
+
+  deploy:
+    name: Deploy to ECS
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Configure AWS Credentials
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-south-1
+        aws-region: ${{ env.AWS_REGION }}
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -31,4 +36,21 @@ jobs:
       run: terraform plan -out=tfplan
 
     - name: Terraform Apply
-      run: terraform apply tfplan
+      run: terraform apply -auto-approve tfplan
+
+    - name: Get ECR Repository URI
+      id: ecr-info
+      run: |
+        ECR_REPOSITORY_URI=$(terraform output hello_node_app_repository_url)
+        echo "repository-uri=$ECR_REPOSITORY_URI" >> $GITHUB_OUTPUT
+
+    - name: Login to Amazon ECR
+      run: aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr-info.outputs.repository-uri }}
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.ecr-info.outputs.repository-uri }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY:$IMAGE_TAG
